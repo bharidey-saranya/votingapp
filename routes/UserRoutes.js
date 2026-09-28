@@ -24,6 +24,7 @@ router.post('/signup', async (req, res) => {
     const passwordallowed = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[%@!&#*.])[A-Za-z\d%@!&#*.]{6,}$/;
     if (!passwordallowed.test(data.password)) {
         return res.status(400).json({ error: 'Password must contain uppercase, lowercase, number, and special character' })
+    }
     try {
         const adminuser = await User.findOne({ role: 'admin' });
         if (data.role === 'admin' && adminuser) {
