@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivicVote | Secure Digital Voting Platform</title>
+  <meta name="description"
+    content="A secure, transparent, and modern digital voting application built with Node.js, Express, and MongoDB.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+  <!-- Background decorative glows -->
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <!-- Main Navigation Header -->
+  <header class="navbar" id="main-navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Civic<span class="gradient-text">Vote</span></span>
+          <span class="brand-badge">Official Election Portal</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Visible when logged in) -->
+      <nav class="nav-links" id="nav-tabs" style="display: none;">
+        <button class="nav-tab active" data-tab="voting" id="tab-btn-voting">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Voting Booth
+        </button>
+        <button class="nav-tab" data-tab="results" id="tab-btn-results">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          Live Results
+        </button>
+        <button class="nav-tab" data-tab="admin" id="tab-btn-admin" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Admin Panel
+        </button>
+        <button class="nav-tab" data-tab="profile" id="tab-btn-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          Profile & Security
+        </button>
+      </nav>
+
+      <!-- Auth Action / User Profile Header Bar -->
+      <div class="nav-auth" id="nav-auth-section">
+        <button class="btn btn-primary btn-sm" id="btn-open-auth" onclick="app.showAuthModal()">
+          Sign In / Register
+        </button>
+
+        <div class="user-chip" id="user-chip" style="display: none;">
+          <div class="user-avatar" id="nav-user-avatar">U</div>
+          <div class="user-details">
+            <span class="user-name" id="nav-user-name">User</span>
+            <span class="user-role-badge" id="nav-user-role">Voter</span>
+          </div>
+          <button class="btn-logout" id="btn-logout" title="Log out" onclick="app.logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- Hero / Welcome Banner -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          2026 General Election is LIVE
+        </div>
+        <h1 class="hero-title">Empower Your Voice With <span class="gradient-text">Verified Voting</span></h1>
+        <p class="hero-subtitle">Fast, tamper-proof, and cryptographic ballot casting for all registered citizens.</p>
+
+        <!-- Live Quick Stats Bar -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-indigo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-candidates-count">0</span>
+              <span class="stat-label">Active Candidates</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total-votes">0</span>
+              <span class="stat-label">Total Votes Cast</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-user-status">Not Logged In</span>
+              <span class="stat-label">Your Voting Status</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOT LOGGED IN CALL-TO-ACTION (Shown when user has no token) -->
+    <section class="auth-prompt-card" id="auth-prompt-banner">
+      <div class="auth-prompt-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+      <div class="auth-prompt-text">
+        <h3>Authentication Required to Vote</h3>
+        <p>Sign in with your verified 12-digit Aadhar Card Number and password to view candidates, cast your ballot, or
+          inspect election telemetry.</p>
+      </div>
+      <div class="auth-prompt-actions">
+        <button class="btn btn-primary" onclick="app.showAuthModal('login')">Log In Now</button>
+        <button class="btn btn-secondary" onclick="app.showAuthModal('signup')">Register Voter</button>
+      </div>
+    </section>
+
+    <!-- TAB 1: VOTING BOOTH -->
+    <section class="tab-pane active" id="pane-voting" style="display: none;">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Official Candidates Ballot</h2>
+          <p class="section-desc">Select your preferred candidate below. Remember, every citizen can vote only once.</p>
+        </div>
+        <div class="voter-status-pill" id="voter-status-indicator">
+          <span class="status-circle status-pending"></span>
+          <span id="voter-status-text">Checking ballot status...</span>
+        </div>
+      </div>
+
+      <!-- Candidate Grid -->
+      <div class="candidate-grid" id="candidates-container">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 2: LIVE ELECTION RESULTS -->
+    <section class="tab-pane" id="pane-results" style="display: none;">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Live Election Telemetry & Leaderboard</h2>
+          <p class="section-desc">Live vote tally sorted by candidate popularity in descending order.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="app.loadResults(true)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-hover">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh Results
+        </button>
+      </div>
+
+      <div class="leaderboard-card">
+        <div class="leaderboard-table-wrapper">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Candidate & Party</th>
+                <th>Total Votes</th>
+                <th>Vote Share</th>
+              </tr>
+            </thead>
+            <tbody id="results-table-body">
+              <!-- Rendered dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: ADMIN MANAGEMENT PANEL (Admin Role Only) -->
+    <section class="tab-pane" id="pane-admin" style="display: none;">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Election Administration Panel</h2>
+          <p class="section-desc">Add new candidates, manage candidate records, and toggle candidate ballot
+            availability.</p>
+        </div>
+        <button class="btn btn-primary" onclick="app.openCandidateModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add New Candidate
+        </button>
+      </div>
+
+      <!-- Admin Candidates Management Table -->
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Candidate</th>
+                <th>Party</th>
+                <th>Age</th>
+                <th>Votes</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-candidates-table-body">
+              <!-- Rendered dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: PROFILE & SECURITY -->
+    <section class="tab-pane" id="pane-profile" style="display: none;">
+      <div class="profile-grid">
+
+        <!-- Profile Details Card -->
+        <div class="card profile-info-card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="card-title">Voter Identification Card</h3>
+              <p class="card-subtitle">Verified details registered in the election ledger</p>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="profile-field-group">
+              <div class="profile-field">
+                <span class="field-label">Full Name</span>
+                <span class="field-value" id="profile-name">—</span>
+              </div>
+              <div class="profile-field">
+                <span class="field-label">Account Role</span>
+                <span class="field-value badge-pill" id="profile-role">Voter</span>
+              </div>
+              <div class="profile-field">
+                <span class="field-label">Aadhar Card Number</span>
+                <span class="field-value font-mono" id="profile-aadhar">•••• •••• ••••</span>
+              </div>
+              <div class="profile-field">
+                <span class="field-label">Registered Email</span>
+                <span class="field-value" id="profile-email">—</span>
+              </div>
+              <div class="profile-field">
+                <span class="field-label">Mobile Number</span>
+                <span class="field-value" id="profile-mobile">—</span>
+              </div>
+              <div class="profile-field">
+                <span class="field-label">Age</span>
+                <span class="field-value" id="profile-age">—</span>
+              </div>
+              <div class="profile-field">
+                <span class="field-label">Voting Status</span>
+                <span class="field-value badge-pill" id="profile-vote-status">Checking...</span>
+              </div>
+              <div class="profile-field">
+                <span class="field-label">Account Status</span>
+                <span class="field-value badge-pill badge-active" id="profile-active-status">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update Password Form Card -->
+        <div class="card profile-security-card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="card-title">Security & Password</h3>
+              <p class="card-subtitle">Keep your voter credentials safe and up to date</p>
+            </div>
+          </div>
+
+          <form id="form-update-password" onsubmit="app.handleUpdatePassword(event)">
+            <div class="form-group">
+              <label class="form-label" for="pswd-current">Current Password</label>
+              <input type="password" id="pswd-current" class="form-control" placeholder="Enter current password"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pswd-new">New Password</label>
+              <input type="password" id="pswd-new" class="form-control" placeholder="Enter new strong password" required
+                oninput="app.checkPasswordRules(this.value)">
+              <div class="password-rules-box" id="password-rules-box">
+                <span class="rule-item" id="rule-len">✓ 6+ chars</span>
+                <span class="rule-item" id="rule-upper">✓ Uppercase</span>
+                <span class="rule-item" id="rule-lower">✓ Lowercase</span>
+                <span class="rule-item" id="rule-num">✓ Number</span>
+                <span class="rule-item" id="rule-special">✓ Special symbol</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pswd-confirm">Confirm New Password</label>
+              <input type="password" id="pswd-confirm" class="form-control" placeholder="Re-enter new password"
+                required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="btn-submit-pswd">
+              Update Password
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- AUTH MODAL (Login / Signup) -->
+  <div class="modal-overlay" id="modal-auth" style="display: none;">
+    <div class="modal-card modal-auth-card">
+      <button class="modal-close" onclick="app.closeAuthModal()">&times;</button>
+
+      <!-- Modal Tabs (Login / Register) -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="app.switchAuthMode('login')">Sign In</button>
+        <button class="auth-tab" id="tab-signup" onclick="app.switchAuthMode('signup')">New Voter Registration</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="form-login" onsubmit="app.handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="login-aadhar">Aadhar Card Number</label>
+          <input type="text" id="login-aadhar" class="form-control font-mono" placeholder="Enter 12-digit number"
+            maxlength="12" pattern="\d{12}" required>
+          <span class="form-hint">Exactly 12 numeric digits</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="btn-login-submit">
+          Log In to Vote
+        </button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form id="form-signup" onsubmit="app.handleSignup(event)" style="display: none;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full Name</label>
+            <input type="text" id="signup-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-age">Age</label>
+            <input type="number" id="signup-age" class="form-control" min="18" max="120" placeholder="18+" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email Address</label>
+            <input type="email" id="signup-email" class="form-control" placeholder="name@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-mobile">Mobile Number</label>
+            <input type="tel" id="signup-mobile" class="form-control" placeholder="10-digit number" maxlength="10">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signup-aadhar">Aadhar Card Number (12 digits)</label>
+          <input type="text" id="signup-aadhar" class="form-control font-mono" placeholder="123456789012" maxlength="12"
+            pattern="\d{12}" required>
+          <span class="form-hint">Must be exactly 12 numeric digits</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <input type="password" id="signup-password" class="form-control" placeholder="Password@123" required
+              oninput="app.checkSignupPasswordRules(this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signup-role">Role</label>
+            <select id="signup-role" class="form-control">
+              <option value="Voter" selected>Voter</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="password-rules-box mb-4">
+          <span class="rule-item" id="signup-rule-len">✓ 6+ chars</span>
+          <span class="rule-item" id="signup-rule-upper">✓ Uppercase</span>
+          <span class="rule-item" id="signup-rule-lower">✓ Lowercase</span>
+          <span class="rule-item" id="signup-rule-num">✓ Number</span>
+          <span class="rule-item" id="signup-rule-spec">✓ Symbol</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="btn-signup-submit">
+          Complete Registration & Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- VOTE CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="modal-vote-confirm" style="display: none;">
+    <div class="modal-card modal-confirm-card">
+      <div class="modal-confirm-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 class="modal-confirm-title">Confirm Your Ballot</h3>
+      <p class="modal-confirm-desc">You are about to cast your official vote for:</p>
+
+      <div class="confirm-candidate-preview">
+        <h4 id="confirm-candidate-name">Candidate Name</h4>
+        <span class="party-tag" id="confirm-candidate-party">Party</span>
+      </div>
+
+      <div class="alert-box alert-warning">
+        ⚠️ <strong>Important:</strong> You can only cast your vote once. Once submitted, your vote is cryptographically
+        recorded and cannot be changed or undone.
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="app.closeVoteModal()">Cancel</button>
+        <button class="btn btn-emerald" id="btn-confirm-vote-submit" onclick="app.executeVote()">Confirm & Cast
+          Vote</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN ADD/EDIT CANDIDATE MODAL -->
+  <div class="modal-overlay" id="modal-candidate" style="display: none;">
+    <div class="modal-card">
+      <button class="modal-close" onclick="app.closeCandidateModal()">&times;</button>
+      <h3 class="card-title" id="candidate-modal-title">Add New Candidate</h3>
+      <p class="card-subtitle mb-4">Register an official candidate for the election ballot.</p>
+
+      <form id="form-candidate" onsubmit="app.handleSaveCandidate(event)">
+        <input type="hidden" id="candidate-id">
+        <div class="form-group">
+          <label class="form-label" for="candidate-name">Candidate Name</label>
+          <input type="text" id="candidate-name" class="form-control" placeholder="e.g. John Doe" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="candidate-party">Political Party / Affiliation</label>
+          <input type="text" id="candidate-party" class="form-control" placeholder="e.g. Democratic Alliance" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="candidate-age">Age</label>
+          <input type="number" id="candidate-age" class="form-control" min="25" max="100" placeholder="e.g. 45"
+            required>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="app.closeCandidateModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-candidate">Save Candidate</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Javascript Core -->
+  <script src="/app.js"></script>
+</body>
+
+</html>

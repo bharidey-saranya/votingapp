@@ -1,0 +1,67 @@
+votting application
+what??
+a functionality where user can give vote to the set of candidates
+
+models
+routes
+
+voting app functionality
+
+1.user singi/singup
+2.See the list of candidates
+3.user can vote only one candidates, after using one candidate he can't vote again
+4.there is a route which shows the list of candidates and their live vote counts sorted by their vote counts in descending order
+5.User must contain their unique id proff - aadhar card or voter id card, after giving vote he can't vote again
+6.Admin can add new candidates, and can remove candidates and admin can see the list of users who have voted, and their details, and he cant vote
+7.user can change their password
+8.user can login with ther aadhar and password
+9.Admin cant vote.
+
+
+
+
+------------------------------------------------------------
+
+routes
+
+user authentication............
+1.signup (POST)
+parameters:name, age, password, aadhar, role="user"
+2.login (POST)
+parameters:aadhar, password
+response: JWT token
+
+user management...............
+1.update profile (GET)
+parameters: none
+response: user details
+2.change password (POST)
+parameters: old password, new password
+3.get candidates list (GET)
+parameters: none
+response: candidates list sorted by vote count
+4.vote (POST)
+parameters: candidateId
+5.get my vote (GET)
+parameters: none
+response: my vote
+
+admin management...............
+1.add candidate (POST)
+parameters: name, party, image, symbol
+2.remove candidate (DELETE)
+parameters: candidateId
+3.get users list (GET)
+parameters: none
+response: users list
+4.delete user (DELETE)
+parameters: userId
+
+voting management................
+1.get candidates list (GET)
+parameters: none
+response: candidates list sorted by vote count
+/vote/:candidateId:POST - vote for a specific candidate
+
+vote counta...............
+1./vote/count: GET - get the list of candidates sorted by their votes
