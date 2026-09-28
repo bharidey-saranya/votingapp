@@ -18,8 +18,10 @@ router.post('/createcandidate', jwtAuthMiddleware, async (req, res) => {
 
     const data = req.body;
 
-    if (data.name.trim() == '' || data.age.trim() == '' || data.party.trim() == '') {
-        return res.status(400).json({ error: 'All fields are required' });
+    if (!data.name || data.name.toString().trim() === '' || 
+        !data.party || data.party.toString().trim() === '' || 
+        data.age === undefined || data.age === null || data.age === '') {
+        return res.status(400).json({ error: 'All fields (name, age, party) are required' });
     }
     try {
         const newcandidate = new candidate(data);
@@ -145,14 +147,14 @@ router.post('/vote/:candidateid', jwtAuthMiddleware, async (req, res) => {
 
 router.get('/votecount', jwtAuthMiddleware, async (req, res) => {
     try {
-
-        const candidates = await candidate.find().sort({ votecount: 'desc' });
-        const voterecord = candidates.map((candidates) => {
+        const candidates = await candidate.find().sort({ voteCount: -1 });
+        const voterecord = candidates.map((c) => {
             return {
-                name: candidates.name,
-                party: candidates.party,
-                voteCount: candidates.voteCount
-            }
+                id: c._id,
+                name: c.name,
+                party: c.party,
+                voteCount: c.voteCount || 0
+            };
         });
         return res.status(200).json({ message: 'Vote count fetched successfully', voterecord });
     } catch (error) {

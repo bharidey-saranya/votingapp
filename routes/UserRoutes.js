@@ -24,8 +24,6 @@ router.post('/signup', async (req, res) => {
     const passwordallowed = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[%@!&#*.])[A-Za-z\d%@!&#*.]{6,}$/;
     if (!passwordallowed.test(data.password)) {
         return res.status(400).json({ error: 'Password must contain uppercase, lowercase, number, and special character' })
-    }
-    const session = await mongoose.startSession();
     try {
         const adminuser = await User.findOne({ role: 'admin' });
         if (data.role === 'admin' && adminuser) {
@@ -42,8 +40,9 @@ router.post('/signup', async (req, res) => {
         const response = await adduser.save();
         const payload = {
             id: response._id,
-            name: response.name
-        }
+            name: response.name,
+            role: response.role
+        };
 
         if (!response) {
             return res.status(400).json({ error: 'User not created' });
@@ -113,13 +112,13 @@ router.get('/profile', jwtAuthMiddleware, async (req, res) => {
 router.put('/updatepswd', jwtAuthMiddleware, async (req, res) => {
     try {
 
-        const { userid, newpassword, currentpswd, confirmpswd } = req.body;
-        if (userid == '') {
-            console.log(req.user.id, userid)
+        const { newpassword, currentpswd, confirmpswd } = req.body;
+        const targetUserId = req.body.userid || req.user.id;
 
+        const oldpswd = await User.findById(targetUserId);
+        if (!oldpswd) {
             return res.status(404).json({ error: 'User not found' });
         }
-        const oldpswd = await User.findOne({ _id: userid });
         const isPasswordValid = await bcrypt.compare(currentpswd, oldpswd.password);
 
         if (!isPasswordValid) {
@@ -127,23 +126,19 @@ router.put('/updatepswd', jwtAuthMiddleware, async (req, res) => {
         }
 
         if (currentpswd == newpassword) {
-            return res.status(400).json({ error: 'current password and new password are same' })
+            return res.status(400).json({ error: 'current password and new password are same' });
         }
         if (confirmpswd !== newpassword) {
-            return res.status(400).json({ error: 'new password and confirm password are not same' })
+            return res.status(400).json({ error: 'new password and confirm password are not same' });
         }
         const passwordallowed = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[%@!&#*.])[A-Za-z\d%@!&#*.]{6,}$/;
         if (!passwordallowed.test(newpassword)) {
-            return res.status(400).json({ error: 'Password must contain uppercase, lowercase, number, and special character' })
+            return res.status(400).json({ error: 'Password must contain uppercase, lowercase, number, and special character' });
         }
         const hashpassword = await bcrypt.hash(newpassword, 10);
-        const updatepswd = await User.updateOne({ _id: userid }, { $set: { password: hashpassword } });
-        if (updatepswd.modifiedCount > 0) {
-            return res.status(200).json({ message: 'Password updated successfully' });
-        }
-        else {
-            return res.status(400).json({ error: 'Password not updated' });
-        }
+        oldpswd.password = hashpassword;
+        await oldpswd.save();
+        return res.status(200).json({ message: 'Password updated successfully' });
 
     } catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
