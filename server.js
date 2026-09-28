@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const PORT = process.env.PORT || 3000;
 
 const { jwtAuthMiddleware } = require('./jwt');
-const userRoutes = require('./routes/Userroutes.js');
+const userRoutes = require('./routes/UserRoutes.js');
 app.use('/user', userRoutes);
 
 const CandidateRoutes = require('./routes/CandidateRoutes.js');
@@ -26,4 +26,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);
 });
+
+module.exports = app;
 
